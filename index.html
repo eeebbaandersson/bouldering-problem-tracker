@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bouldering Problem Tracker</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+</head>
+<body>
+    
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<div id="app">
+    <h1>Bouldering <br> Problem Tracker</h1>
+
+    <ul>
+        <li v-for="problem in problems" :key="problem.id">
+            {{ problem.style }} {{ problem.grade }} {{ problem.tries }} {{ problem.status }} {{ problem.gym }} {{ problem.date }} {{ problem.notes }}
+
+        </li>
+    </ul>
+    
+</div>
+
+<script>
+  const { createApp } = Vue
+
+  createApp({
+    data() {
+      return {
+        userName: 'Ebba',
+        favoriteBoulderStyle: 'slab',
+
+        newProblem: {
+                style: '',
+                grade: '',
+                tries: 1,
+                status: 'Send',
+                gym: '',
+                date: '',
+                notes: ''
+        },
+
+        problems: [
+            {
+                id: 1,
+                style: 'slab',
+                grade: '6B',
+                tries: 1,
+                status: 'Send',
+                gym: 'Backa Boulder',
+                date: '2026-09-01',
+                notes: 'Solved it on the first atempt!'
+            }
+       ]
+      }
+    }
+  }).mount('#app')
+</script>
+</body>
+</html>
+
+
