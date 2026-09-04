@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Bouldering Problem Tracker</title>
+    <title>🧗🏻‍♀️ Bouldering Problem Tracker</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
@@ -10,15 +10,68 @@
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
 <div id="app">
-    <h1>Bouldering <br> Problem Tracker</h1>
 
-    <ul>
-        <li v-for="problem in problems" :key="problem.id">
-            {{ problem.style }} {{ problem.grade }} {{ problem.tries }} {{ problem.status }} {{ problem.gym }} {{ problem.date }} {{ problem.notes }}
+    <header></header>
 
-        </li>
-    </ul>
-    
+    <main>
+        <!-- Hero section-->
+        <section id="hero" class="hero-container">
+            <h1>
+                <span class="brand-accent">Bouldering</span> <br>
+                Problem Tracker
+            </h1>
+
+            <p class="tagline">
+                Data-driven climbing. <br>
+                Because <em>"I almost had it"</em> doesn't count on the log.</p>
+
+        <div class="stats-container">
+            <div class="stats-card">
+                <span class="stat-number">{{ totalSends }}</span>
+                <span class="stat-label">TOTAL SENDS</span>
+            </div>
+            <div class="stats-card">
+                <span class="stat-number">{{ activeProjects }}</span>
+                <span class="stat-label">PROJECTS</span>
+            </div>
+            <div class="stats-card">
+                <span class="stat-number">{{ totalFlashes }}</span>
+                <span class="stat-label">TOTAL FLASHES</span>
+            </div>
+        </div>
+        </section>
+
+        <!-- Filter section-->
+        <section id="filters" class="filter-container">
+            <h3>Filter drop-down options</h3>
+        </section>
+
+        <!-- Problem Display section -->
+        <section id="problem-list" class="problem-container">
+            <h2>Logged problems</h2>
+             <ul>
+                <li v-for="(problem, index) in problems" :key="problem.id">
+                     {{ problem.style }} {{ problem.grade }} {{ problem.tries }} {{ problem.status }} {{ problem.gym }} {{ problem.date }} {{ problem.notes }}
+                     <button @click="deleteProblem(index)">Delete</button>
+                 </li>
+            </ul>
+        </section>
+
+        <!-- Problem Form section-->
+        <section id="log-form" class="log-container">
+            <h2>Log new problem</h2>
+        </section>
+
+         <section id="user-profile" class="user-container">
+            <h2>User profile</h2>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Bouldering Problem Tracker</p>
+    </footer>
+
 </div>
 
 <script>
@@ -28,8 +81,7 @@
     data() {
       return {
         userName: 'Ebba',
-        favoriteBoulderStyle: 'slab',
-
+        
         newProblem: {
                 style: '',
                 grade: '',
@@ -53,10 +105,50 @@
             }
        ]
       }
+    },
+    computed: {
+        totalSends() {
+            return this.problems.filter(p => p.status === 'Send').length;
+        },
+        activeProjects() {
+            return this.problems.filter(p => p.status === 'Project').length;
+        },
+        totalFlashes() {
+            return this.problems.filter(p => p.status === 'Send' && Number(p.tries) === 1).length;
+            
+        }
+
+    },
+    methods: {
+        logNewProblem() {
+            this.problems.push({
+                id: Date.now(),
+                style: this.newProblem.style,
+                grade: this.newProblem.grade,
+                tries: this.newProblem.tries,
+                status: this.newProblem.status,
+                gym: this.newProblem.gym,
+                date: this.newProblem.date,
+                notes: this.newProblem.notes
+            })
+
+            this.newProblem = {
+                style: '',
+                grade: '',
+                tries: 1,
+                status: 'Send',
+                gym: '',
+                date: '',
+                notes: ''
+            };
+        },
+        updateCurrentProblem(index) {},
+
+        deleteProblem(index) {
+            this.problems.splice(index, 1)
+        }
     }
   }).mount('#app')
 </script>
 </body>
 </html>
-
-
