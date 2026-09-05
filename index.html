@@ -17,7 +17,7 @@
         <!-- Hero section-->
         <section id="hero" class="hero-container">
             <h1>
-                <span class="brand-accent">Bouldering</span> <br>
+                <span class="brand-accent">[Bouldering]</span> <br>
                 Problem Tracker
             </h1>
 
@@ -42,28 +42,116 @@
         </section>
 
         <!-- Filter section-->
-        <section id="filters" class="filter-container">
-            <h3>Filter drop-down options</h3>
+        <section id="filters" class="filter-grid">
+            <div class="filter-container">
+
+                <div class="filter-group">
+                    <div class="filter-item">
+                        <label class="filter-label">Status</label>
+                        <select v-model="selectedStatus" class="filter-select">
+                            <option value="">All</option>
+                            <option value="SEND">Sends</option>
+                            <option value="FLASH">Flashes</option>
+                            <option value="PROJECT">Projects</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-item">
+                        <label class="filter-label">Grade</label>
+                        <select v-model="selectedGrade" class="filter-select">
+                            <option value="">All</option>
+                            <option value="5">5</option>
+                            <option value="6A">6A</option>
+                            <option value="6B">6B</option>
+                              <option value="6C">6C</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">Style</label>
+                        <select v-model="selectedStyle" class="filter-select">
+                            <option value="">All</option>
+                            <option value="COMP">Comp</option>
+                            <option value="DYNO">Dyno</option>
+                            <option value="OVERHANG">Overhang</option>
+                            <option value="SLAB">Slab</option>
+                             <option value="VERTICAL">Vertical</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <label class="filter-label">&nbsp;</label>
+                        <button v-if="hasActiveFilters" @click="resetFilters" class="btn-reset">
+                            Clear filters
+                        </button>
+                    </div>
+
+                    
+                </div>
+            </div>
         </section>
 
         <!-- Problem Display section -->
-        <section id="problem-list" class="problem-container">
-            <h2>Logged problems</h2>
-             <ul>
-                <li v-for="(problem, index) in problems" :key="problem.id">
-                     {{ problem.style }} {{ problem.grade }} {{ problem.tries }} {{ problem.status }} {{ problem.gym }} {{ problem.date }} {{ problem.notes }}
-                     <button @click="deleteProblem(index)">Delete</button>
-                 </li>
-            </ul>
-        </section>
+    <section id="problem-list" class="problem-grid">
+    <div class="problem-container">
+        <h2>Logged problems</h2>
+        
+        <!-- Empty state om inga problem loggats-->
+        <div v-if="problems.length === 0" class="empty-state">
+            <p>You have no climbs logged yet.</p>
+        </div>
+
+        <!-- Om filtren ger 0 resultat-->
+        <div v-else-if="filteredProblems.length === 0" class="empty-state">
+              <p>No climbs found for your filters</p>
+              <button @click="resetFilters" class="btn-reset" style="margin-top: 0.75rem;">
+                Clear filters
+              </button>
+        </div>
+
+        <!-- Problem finns och matchar filtren -->
+        <div v-else class="problem-cards-list">
+            <div v-for="problem in filteredProblems" :key="problem.id" class="problem-card">
+                
+                <div class="card-header">
+                    <div class="card-tags">
+                        <span class="badge badge-grade">{{ problem.grade }}</span>
+                        <!-- Dynamisk klass baserad på status -->
+                        <span class="badge" :class="getDisplayStatus(problem).toLowerCase()">
+                            {{ getDisplayStatus(problem) }}
+                        </span>
+
+                        <span class="badge badge-style">{{ problem.style }}</span>
+                    </div>
+                    <button @click="deleteProblem(problem.id)" class="btn-delete" title="Delete problem">&times;</button>
+                </div>
+
+                <div class="card-body">
+                    <h3 class="gym-title">{{ problem.gym }} - {{ problem.date }}</h3>
+                    <p class="meta-info">
+                        <span>{{ problem.tries }} {{ problem.tries === 1 ? 'try' : 'tries' }}</span>
+                        <template v-if="problem.notes">
+                            <span class="meta-bullet">&bull;</span>
+                            <span class="problem-notes">"{{ problem.notes }}"</span>
+                        </template>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
 
         <!-- Problem Form section-->
-        <section id="log-form" class="log-container">
-            <h2>Log new problem</h2>
+        <section id="log-form" class="log-grid">
+            <div class="form-container">
+                <h2>Add new problem</h2>
+
+            </div>
         </section>
 
-         <section id="user-profile" class="user-container">
-            <h2>User profile</h2>
+         <section id="user-profile" class="user-grid">
+            <div class="user-container">
+                <h2>Manage profile</h2>
+            </div>
         </section>
 
     </main>
@@ -80,13 +168,17 @@
   createApp({
     data() {
       return {
+        selectedStatus: '',
+        selectedGrade: '',
+        selectedStyle: '',
+
         userName: 'Ebba',
         
         newProblem: {
                 style: '',
                 grade: '',
                 tries: 1,
-                status: 'Send',
+                status: 'Flash',
                 gym: '',
                 date: '',
                 notes: ''
@@ -102,6 +194,16 @@
                 gym: 'Backa Boulder',
                 date: '2026-09-01',
                 notes: 'Solved it on the first atempt!'
+            },
+             {
+                id: 2,
+                style: 'overhang',
+                grade: '6A',
+                tries: 3,
+                status: 'Project',
+                gym: 'Backa Boulder',
+                date: '2026-09-01',
+                notes: 'Still working on this one...'
             }
        ]
       }
@@ -114,12 +216,45 @@
             return this.problems.filter(p => p.status === 'Project').length;
         },
         totalFlashes() {
-            return this.problems.filter(p => p.status === 'Send' && Number(p.tries) === 1).length;
-            
-        }
+            return this.problems.filter(p => p.status === 'Send' && Number(p.tries) === 1).length;  
+        },
+        filteredProblems() {
+            return this.problems.filter(problem => {
+                const statusVal = this.selectedStatus.toLowerCase();
+                const probStatus = problem.status.toLowerCase();
+                const isFlash = probStatus === 'flash' || (probStatus === 'send' && Number(problem.tries) === 1);
 
+                let matchesStatus = true;
+                if (statusVal === 'send') {
+                    // Visa både Sends och Flashes under Sends
+                    matchesStatus = probStatus === 'send' || probStatus === 'flash';
+                } else if (statusVal === 'flash') {
+                    // Visa bara det som faktiskt räknas som Flash
+                    matchesStatus = isFlash;
+                } else if (statusVal) {
+                    matchesStatus = probStatus === statusVal;
+                }
+               
+                const matchesGrade = !this.selectedGrade || problem.grade.toLowerCase() === this.selectedGrade.toLowerCase();
+                const matchesStyle = !this.selectedStyle || problem.style.toLowerCase() === this.selectedStyle.toLowerCase();
+
+                return matchesStatus && matchesGrade && matchesStyle;
+            });
+        },
+        hasActiveFilters() {
+            return this.selectedStatus || this.selectedGrade || this.selectedStyle;
+        }
     },
     methods: {
+        getDisplayStatus(problem) {
+            const isFlash = problem.status.toLowerCase() === 'send' && Number(problem.tries) === 1;
+            return isFlash ? 'FLASH' : problem.status;
+        },
+        resetFilters() {
+            this.selectedStatus = '';
+            this.selectedGrade = '';
+            this.selectedStyle = '';
+        },
         logNewProblem() {
             this.problems.push({
                 id: Date.now(),
@@ -144,8 +279,8 @@
         },
         updateCurrentProblem(index) {},
 
-        deleteProblem(index) {
-            this.problems.splice(index, 1)
+        deleteProblem(id) {
+           this.problems = this.problems.filter(p => p.id !== id);
         }
     }
   }).mount('#app')
