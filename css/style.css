@@ -1,12 +1,14 @@
 :root {
-    --bg-main: #212325;
+    /* --bg-main: #212325; */
+    /* --bg-main: #191b1d; */
+    --bg-main: #121315;
 
     --text-primary:#e4e5e7;
     --accent-color:#4ade80;
-    /* --accent-color:#40be9a; */
     /* --accent-color:#4adec0; */
-    --border-color-card: rgba(255, 255, 255, 0.08);
-    --border-line-color: rgba(255, 255, 255, 0.1);
+
+    --border-color-card: rgba(255, 255, 255, 0.06);
+    --border-line-color: rgba(255, 255, 255, 0.08);
 
     --border-radius-card: 12px;
 
@@ -34,6 +36,14 @@ section {
     padding: 3rem 0;
 }
 
+h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 1rem;
+}
 
 .hero-container, .filter-grid, .problem-grid, .log-grid, .user-grid {
     width: 90%;
@@ -66,7 +76,10 @@ section {
 }
 
 .tagline {
-    color: var(--text-primary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 2rem;
 }
 
 .tagline em {
@@ -208,7 +221,7 @@ section {
 }
 
 .problem-container h2 {
-    margin-top: 1rem;
+    margin-top: 0;
 }
 
 .form-container, .user-container {
@@ -226,13 +239,17 @@ section {
 }
 
 .problem-card {
-    background-color: rgba(255, 255, 255, 0.01);
+    background-color: rgba(255, 255, 255, 0.015);
     border: 1px solid var(--border-color-card);
     border-radius: var(--border-radius-card);
     padding: 1.25rem;
     display: flex;
     flex-direction: column;
     gap: 0.9rem;
+}
+
+.problem-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
 }
 
 .card-header {
@@ -341,4 +358,5 @@ footer {
     text-align: center;
     padding: 3rem 0;
     font-size: 0.85rem;
+    opacity: 0.6;
 }
