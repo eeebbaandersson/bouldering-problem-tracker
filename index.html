@@ -6,7 +6,7 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
-    
+
 <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
 <div id="app">
@@ -70,9 +70,9 @@
                         <label class="filter-label">Style</label>
                         <select v-model="selectedStyle" class="filter-select">
                             <option value="">All</option>
-                            <option value="COMP">Comp</option>
                             <option value="DYNO">Dyno</option>
                             <option value="OVERHANG">Overhang</option>
+                            <option value="ROOF">Roof</option>
                             <option value="SLAB">Slab</option>
                              <option value="VERTICAL">Vertical</option>
                         </select>
@@ -84,7 +84,7 @@
                         </button>
                     </div>
 
-                    
+
                 </div>
             </div>
         </section>
@@ -93,7 +93,7 @@
     <section id="problem-list" class="problem-grid">
     <div class="problem-container">
         <h2>Logged problems</h2>
-        
+
         <!-- Empty state om inga problem loggats-->
         <div v-if="problems.length === 0" class="empty-state">
             <p>You have no climbs logged yet.</p>
@@ -110,7 +110,7 @@
         <!-- Problem finns och matchar filtren -->
         <div v-else class="problem-cards-list">
             <div v-for="problem in filteredProblems" :key="problem.id" class="problem-card">
-                
+
                 <div class="card-header">
                     <div class="card-tags">
                         <span class="badge badge-grade">{{ problem.grade }}</span>
@@ -142,15 +142,84 @@
 
         <!-- Problem Form section-->
         <section id="log-form" class="log-grid">
-            <div class="form-container">
-                <h2>Log new problem</h2>
+             <h2>Add new problem</h2>
 
+            <div class="form-container">
+                <form @submit.prevent="logNewProblem" class="climb-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Gym</label>
+                            <input type="text" v-model="newProblem.gym" placeholder="e.g. Backa Boulder" required class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" v-model="newProblem.date" required class="form-input">
+                        </div>
+                    </div>
+                   
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Grade</label>
+                            <select v-model="newProblem.grade" required class="form-select">
+                                <option value="" disabled>Select grade</option>
+                                <option value="5">5</option>
+                                <option value="6A">6A</option>
+                                <option value="6B">6B</option>
+                                <option value="6C">6C</option>
+                            </select>
+                        </div>
+
+                         <div class="form-group">
+                            <label>Attempts</label>
+                            <input type="number" v-model.number="newProblem.tries" min="1" class="form-input">
+                        </div>
+                    </div>
+                  
+                     <div class="form-group full-width">
+                        <label>Style</label>
+                        <div class="chip-group">
+                            <button
+                            type="button"
+                            v-for="style in ['Dyno', 'Overhang', 'Roof', 'Slab', 'Vertical']"
+                            :key="style"
+                            class="chip-btn"
+                            :class="{ active: newProblem.style === style }"
+                            @click="newProblem.style = style"
+                            >
+                            {{ style }}
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group full-width">
+                    <label>Status</label>
+                    <div class="chip-group">
+                        <button
+                        type="button"
+                        v-for="status in ['Send', 'Project']"
+                        :key="status"
+                        class="chip-btn"
+                        :class="{ active: newProblem.status === status }"
+                        @click="newProblem.status = status"
+                        >
+                        {{ status }}
+                    </button>
+                </div>
+            </div>
+
+                    <div class="form-group">
+                        <label>Notes (optional)</label>
+                        <input type="text" v-model="newProblem.notes" placeholder="e.g. Heel hook was key!" class="form-input">
+                    </div>
+
+                    <button type="submit" class="btn-submit">Log Problem</button>
+                </form>
             </div>
         </section>
 
          <section id="user-profile" class="user-grid">
+            <h2>Manage profile</h2>
             <div class="user-container">
-                <h2>Manage profile</h2>
             </div>
         </section>
 
@@ -173,7 +242,7 @@
         selectedStyle: '',
 
         userName: '',
-        
+
         newProblem: {
                 style: '',
                 grade: '',
@@ -216,7 +285,7 @@
             return this.problems.filter(p => p.status === 'Project').length;
         },
         totalFlashes() {
-            return this.problems.filter(p => p.status === 'Send' && Number(p.tries) === 1).length;  
+            return this.problems.filter(p => p.status === 'Send' && Number(p.tries) === 1).length;
         },
         filteredProblems() {
             return this.problems.filter(problem => {
@@ -234,7 +303,7 @@
                 } else if (statusVal) {
                     matchesStatus = probStatus === statusVal;
                 }
-               
+
                 const matchesGrade = !this.selectedGrade || problem.grade.toLowerCase() === this.selectedGrade.toLowerCase();
                 const matchesStyle = !this.selectedStyle || problem.style.toLowerCase() === this.selectedStyle.toLowerCase();
 
@@ -277,7 +346,7 @@
                 notes: ''
             };
         },
-        updateCurrentProblem(index) {},
+        updateCurrentProblem(id) {},
 
         deleteProblem(id) {
            this.problems = this.problems.filter(p => p.id !== id);
