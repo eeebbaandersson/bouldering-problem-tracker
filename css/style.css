@@ -31,6 +31,16 @@ section {
     padding: 2rem 0;
 }
 
+.brand-accent,
+.stat-number,
+.meta-info > span:first-child,
+.form-group label,
+.form-input[type="date"],
+.form-input[type="number"],
+footer { 
+    font-family: 'JetBrains Mono', monospace;
+}
+
 h2 {
     font-size: 1rem;
     font-weight: 700;
@@ -62,6 +72,7 @@ h2 {
 
 .brand-accent {
     color: var(--accent-color);
+    margin-left: -0.12em;
 }
 
 .hero-container p {
