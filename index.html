@@ -310,7 +310,7 @@
             return this.problems.filter(p => p.status === 'Send' && Number(p.tries) === 1).length;
         },
         filteredProblems() {
-            return this.problems.filter(problem => {
+            const filtered = this.problems.filter(problem => {
                 const statusVal = this.selectedStatus.toLowerCase();
                 const probStatus = problem.status.toLowerCase();
                 const isFlash = probStatus === 'flash' || (probStatus === 'send' && Number(problem.tries) === 1);
@@ -330,6 +330,18 @@
                 const matchesStyle = !this.selectedStyle || problem.style.toLowerCase() === this.selectedStyle.toLowerCase();
 
                 return matchesStatus && matchesGrade && matchesStyle;
+            });
+
+            // Sortera problem utifrån nyast datum
+            return filtered.sort((a, b) => {
+                const dateA = new Date(a.date).getTime();
+                const dateB = new Date(b.date).getTime();
+
+                if (dateB === dateA) {
+                    return b.id - a.id;
+                }
+
+                return dateB - dateA;
             });
         },
         hasActiveFilters() {

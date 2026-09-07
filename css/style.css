@@ -222,11 +222,34 @@ h2 {
 }
 
 .problem-cards-list {
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 0.5rem;
     display: flex;
     flex-direction: column;
     gap: 0.85rem;
     margin-top: 1rem;
 }
+
+/* Scrollbar */
+.problem-cards-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.problem-cards-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.problem-cards-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+}
+
+.problem-cards-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
 
 .problem-card {
     background-color: rgba(255, 255, 255, 0.015);
