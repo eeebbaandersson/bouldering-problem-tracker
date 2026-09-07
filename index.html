@@ -27,16 +27,19 @@
 
         <div class="stats-container">
             <div class="stats-card">
+                <span class="stat-number">{{ totalFlashes }}</span>
+                <span class="stat-label">TOTAL FLASHES</span>
+               
+            </div>
+            <div class="stats-card">
                 <span class="stat-number">{{ totalSends }}</span>
                 <span class="stat-label">TOTAL SENDS</span>
+               
             </div>
             <div class="stats-card">
                 <span class="stat-number">{{ activeProjects }}</span>
-                <span class="stat-label">PROJECTS</span>
-            </div>
-            <div class="stats-card">
-                <span class="stat-number">{{ totalFlashes }}</span>
-                <span class="stat-label">TOTAL FLASHES</span>
+                <span class="stat-label">ACTIVE PROJECTS</span>
+               
             </div>
         </div>
         </section>
@@ -50,9 +53,10 @@
                         <label class="filter-label">Status</label>
                         <select v-model="selectedStatus" class="filter-select">
                             <option value="">All</option>
-                            <option value="SEND">Sends</option>
                             <option value="FLASH">Flashes</option>
                             <option value="PROJECT">Projects</option>
+                            <option value="RESET">Resets</option>
+                            <option value="SEND">Sends</option>
                         </select>
                     </div>
 
@@ -60,6 +64,7 @@
                         <label class="filter-label">Grade</label>
                         <select v-model="selectedGrade" class="filter-select">
                             <option value="">All</option>
+                            <option value="4">4</option>
                             <option value="5">5</option>
                             <option value="6A">6A</option>
                             <option value="6B">6B</option>
@@ -109,7 +114,7 @@
 
         <!-- Problem finns och matchar filtren -->
         <div v-else class="problem-cards-list">
-            <div v-for="problem in filteredProblems" :key="problem.id" class="problem-card">
+            <div v-for="problem in filteredProblems" :key="problem.id" class="problem-card" @click="editProblem(problem)">
 
                 <div class="card-header">
                     <div class="card-tags">
@@ -121,7 +126,7 @@
 
                         <span class="badge badge-style">{{ problem.style }}</span>
                     </div>
-                    <button @click="deleteProblem(problem.id)" class="btn-delete" title="Delete problem">&times;</button>
+                    <button @click.stop="deleteProblem(problem.id)" class="btn-delete" title="Delete problem">&times;</button>
                 </div>
 
                 <div class="card-body">
@@ -141,11 +146,11 @@
 </section>
 
         <!-- Problem Form section-->
-        <section id="log-form" class="log-grid">
-             <h2>Add new problem</h2>
+        <section id="log-form" ref="formSection" class="log-grid">
+             <h2>{{ editingId ? 'Edit problem' : 'Add new problem' }}</h2>
 
             <div class="form-container">
-                <form @submit.prevent="logNewProblem" class="climb-form">
+                <form @submit.prevent="saveProblem" class="climb-form">
                     <div class="form-row">
                         <div class="form-group">
                             <label>Gym</label>
@@ -162,6 +167,7 @@
                             <label>Grade</label>
                             <select v-model="newProblem.grade" required class="form-select">
                                 <option value="" disabled>Select grade</option>
+                                <option value="4">4</option>
                                 <option value="5">5</option>
                                 <option value="6A">6A</option>
                                 <option value="6B">6B</option>
@@ -212,7 +218,22 @@
                         <input type="text" v-model="newProblem.notes" placeholder="e.g. Heel hook was key!" class="form-input">
                     </div>
 
-                    <button type="submit" class="btn-submit">Log Problem</button>
+                    <div class="form-actions" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+
+                        <button type="submit" class="btn-submit" style="flex: 1;">
+                            {{ editingId ? 'Update Problem' : 'Log Problem' }}
+                        </button>
+
+                        <template v-if="editingId">
+                            <button type="button" @click="markAsReset" class="btn-reset" style="margin-top: 0.5rem; height: auto;">
+                                Mark as Reset
+                            </button>
+                            <button type="button" @click="resetForm" class="btn-reset" style="margin-top: 0.5rem; height: auto;">
+                                Cancel
+                            </button>
+                        </template>
+                    </div>
+                
                 </form>
             </div>
         </section>
@@ -241,6 +262,7 @@
         selectedGrade: '',
         selectedStyle: '',
 
+        editingId: null,
         userName: '',
 
         newProblem: {
@@ -273,7 +295,7 @@
                 gym: 'Backa Boulder',
                 date: '2026-09-01',
                 notes: 'Still working on this one...'
-            }
+            },
        ]
       }
     },
@@ -324,6 +346,24 @@
             this.selectedGrade = '';
             this.selectedStyle = '';
         },
+        editProblem(problem) {
+            this.editingId = problem.id;
+            // Skapar en ny kopia till formuläret med alla fält genom spread-operatorn (...)
+            this.newProblem = {...problem };
+
+            // Vänta tills UI:n uppdaterats($nextTick), skrolla sedan till formuläret
+            this.$nextTick(() => {
+                    this.$refs.formSection.scrollIntoView({block: 'start' });
+            });
+        },
+        saveProblem() {
+            if (this.editingId) {
+                this.updateCurrentProblem(this.editingId);
+            } else {
+                this.logNewProblem();
+            }
+            this.resetForm();
+        },
         logNewProblem() {
             this.problems.push({
                 id: Date.now(),
@@ -346,11 +386,40 @@
                 notes: ''
             };
         },
-        updateCurrentProblem(id) {},
+        updateCurrentProblem(id) {
+            const index = this.problems.findIndex(p => p.id === id);
+            if (index !== -1) {
+                this.problems[index] = {...this.newProblem, id };
+            }
+        },
+        resetForm() {
+            this.editingId = null;
+            this.newProblem = {
+                style: '',
+                grade: '',
+                tries: 1,
+                status: 'Send',
+                gym: '',
+                date: '',
+                notes: ''
+            };
+        },
+        markAsReset() {
+            if (!this.editingId) return;
 
+            // sätt status Reset på aktuella formulärobjektet
+            this.newProblem.status = 'Reset';
+
+            // Uppdatera problemet i listan + rensa formuläret
+            this.updateCurrentProblem(this.editingId);
+            this.resetForm();
+        },
         deleteProblem(id) {
-           this.problems = this.problems.filter(p => p.id !== id);
-        }
+            if (this.editingId === id){
+                this.resetForm();
+            }
+            this.problems = this.problems.filter(p => p.id !== id);
+        } 
     }
   }).mount('#app')
 </script>
