@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>🧗🏻‍♀️ Bouldering Problem Tracker</title>
@@ -9,168 +10,66 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 
-<div id="app">
+    <div id="app">
 
-    <header></header>
+        <header></header>
 
-    <main>
-        <!-- Hero section-->
-        <section id="hero" class="hero-container">
-            <h1>
-                <span class="brand-accent">[Bouldering]</span> <br>
-                Problem Tracker
-            </h1>
+        <main>
+            <!-- Hero section-->
+            <section id="hero" class="hero-container">
+                <h1>
+                    <span class="brand-accent">[Bouldering]</span> <br>
+                    Problem Tracker
+                </h1>
 
-            <p class="tagline">
-                Data-driven climbing. <br>
-                Because <em>"I almost had it"</em> doesn't count on the log.</p>
+                <p class="tagline">
+                    Data-driven climbing. <br>
+                    Because <em>"I almost had it"</em> doesn't count on the log.</p>
 
-        <div class="stats-container">
-            <div class="stats-card">
-                <span class="stat-number">{{ totalFlashes }}</span>
-                <span class="stat-label">TOTAL FLASHES</span>
-               
-            </div>
-            <div class="stats-card">
-                <span class="stat-number">{{ totalSends }}</span>
-                <span class="stat-label">TOTAL SENDS</span>
-               
-            </div>
-            <div class="stats-card">
-                <span class="stat-number">{{ activeProjects }}</span>
-                <span class="stat-label">ACTIVE PROJECTS</span>
-               
-            </div>
-        </div>
-        </section>
+                <div class="stats-container">
+                    <div class="stats-card">
+                        <span class="stat-number">{{ totalFlashes }}</span>
+                        <span class="stat-label">TOTAL FLASHES</span>
 
-        <!-- Filter section-->
-        <section id="filters" class="filter-grid">
-            <div class="filter-container">
-
-                <div class="filter-group">
-                    <div class="filter-item">
-                        <label class="filter-label">Status</label>
-                        <select v-model="selectedStatus" class="filter-select">
-                            <option value="">All</option>
-                            <option value="FLASH">Flashes</option>
-                            <option value="PROJECT">Projects</option>
-                            <option value="RESET">Resets</option>
-                            <option value="SEND">Sends</option>
-                        </select>
                     </div>
+                    <div class="stats-card">
+                        <span class="stat-number">{{ totalSends }}</span>
+                        <span class="stat-label">TOTAL SENDS</span>
 
-                    <div class="filter-item">
-                        <label class="filter-label">Grade</label>
-                        <select v-model="selectedGrade" class="filter-select">
-                            <option value="">All</option>
-                            <option value="4">4</option>
-                            <option value="5">5</option>
-                            <option value="6A">6A</option>
-                            <option value="6B">6B</option>
-                              <option value="6C">6C</option>
-                        </select>
                     </div>
-                    <div class="filter-item">
-                        <label class="filter-label">Style</label>
-                        <select v-model="selectedStyle" class="filter-select">
-                            <option value="">All</option>
-                            <option value="DYNO">Dyno</option>
-                            <option value="OVERHANG">Overhang</option>
-                            <option value="ROOF">Roof</option>
-                            <option value="SLAB">Slab</option>
-                             <option value="VERTICAL">Vertical</option>
-                        </select>
-                    </div>
-                    <div class="filter-item">
-                        <label class="filter-label">&nbsp;</label>
-                        <button v-if="hasActiveFilters" @click="resetFilters" class="btn-reset">
-                            Clear filters
-                        </button>
-                    </div>
+                    <div class="stats-card">
+                        <span class="stat-number">{{ activeProjects }}</span>
+                        <span class="stat-label">ACTIVE PROJECTS</span>
 
-
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <!-- Problem Display section -->
-    <section id="problem-list" class="problem-grid">
-    <div class="problem-container">
-        <h2>Logged problems</h2>
+            <!-- Filter section-->
+            <section id="filters" class="filter-grid">
+                <div class="filter-container">
 
-        <!-- Empty state om inga problem loggats-->
-        <div v-if="problems.length === 0" class="empty-state">
-            <p>You have no climbs logged yet.</p>
-        </div>
-
-        <!-- Om filtren ger 0 resultat-->
-        <div v-else-if="filteredProblems.length === 0" class="empty-state">
-              <p>No climbs found for your filters</p>
-              <button @click="resetFilters" class="btn-reset" style="margin-top: 0.75rem;">
-                Clear filters
-              </button>
-        </div>
-
-        <!-- Problem finns och matchar filtren -->
-        <div v-else class="problem-cards-list">
-            <div v-for="problem in filteredProblems" :key="problem.id" class="problem-card" @click="editProblem(problem)">
-
-                <div class="card-header">
-                    <div class="card-tags">
-                        <span class="badge badge-grade">{{ problem.grade }}</span>
-                        <!-- Dynamisk klass baserad på status -->
-                        <span class="badge" :class="getDisplayStatus(problem).toLowerCase()">
-                            {{ getDisplayStatus(problem) }}
-                        </span>
-
-                        <span class="badge badge-style">{{ problem.style }}</span>
-                    </div>
-                    <button @click.stop="deleteProblem(problem.id)" class="btn-delete" title="Delete problem">&times;</button>
-                </div>
-
-                <div class="card-body">
-                    <h3 class="gym-title">{{ problem.gym }} - {{ problem.date }}</h3>
-                    <p class="meta-info">
-                        <span>{{ problem.tries }} {{ problem.tries === 1 ? 'try' : 'tries' }}</span>
-                        <template v-if="problem.notes">
-                            <span class="meta-bullet">&bull;</span>
-                            <span class="problem-notes">"{{ problem.notes }}"</span>
-                        </template>
-                    </p>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</section>
-
-        <!-- Problem Form section-->
-        <section id="log-form" ref="formSection" class="log-grid">
-             <h2>{{ editingId ? 'Edit problem' : 'Add new problem' }}</h2>
-
-            <div class="form-container">
-                <form @submit.prevent="saveProblem" class="climb-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Gym</label>
-                            <input type="text" v-model="newProblem.gym" placeholder="e.g. Backa Boulder" required class="form-input">
+                    <div class="filter-group">
+                        <div class="filter-item">
+                            <label class="filter-label">Status</label>
+                            <select v-model="selectedStatus" class="filter-select">
+                                <option value="">All</option>
+                                <option value="FLASH">Flashes</option>
+                                <option value="PROJECT">Projects</option>
+                                <option value="RESET">Resets</option>
+                                <option value="SEND">Sends</option>
+                            </select>
                         </div>
-                        <div class="form-group">
-                            <label>Date</label>
-                            <input type="date" v-model="newProblem.date" required class="form-input">
-                        </div>
-                    </div>
-                   
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Grade</label>
-                            <select v-model="newProblem.grade" required class="form-select">
-                                <option value="" disabled>Select grade</option>
+
+                        <div class="filter-item">
+                            <label class="filter-label">Grade</label>
+                            <select v-model="selectedGrade" class="filter-select">
+                                <option value="">All</option>
                                 <option value="4">4</option>
                                 <option value="5">5</option>
                                 <option value="6A">6A</option>
@@ -178,391 +77,494 @@
                                 <option value="6C">6C</option>
                             </select>
                         </div>
-
-                         <div class="form-group">
-                            <label>Attempts</label>
-                            <input type="number" v-model.number="newProblem.tries" min="1" class="form-input">
-                        </div>
-                    </div>
-                  
-                     <div class="form-group full-width">
-                        <label>Style</label>
-                        <div class="chip-group">
-                            <button
-                            type="button"
-                            v-for="style in ['Dyno', 'Overhang', 'Roof', 'Slab', 'Vertical']"
-                            :key="style"
-                            class="chip-btn"
-                            :class="{ active: newProblem.style === style }"
-                            @click="newProblem.style = style"
-                            >
-                            {{ style }}
-                        </button>
-                    </div>
-                </div>
-
-                <div class="form-group full-width">
-                    <label>Status</label>
-                    <div class="chip-group">
-                        <button
-                        type="button"
-                        v-for="status in ['Send', 'Project']"
-                        :key="status"
-                        class="chip-btn"
-                        :class="{ active: newProblem.status === status }"
-                        @click="newProblem.status = status"
-                        >
-                        {{ status }}
-                    </button>
-                </div>
-            </div>
-
-                    <div class="form-group">
-                        <label>Notes (optional)</label>
-                        <input type="text" v-model="newProblem.notes" placeholder="e.g. Heel hook was key!" class="form-input">
-                    </div>
-
-                    <div class="form-actions" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-
-                        <button type="submit" class="btn-submit" style="flex: 1;">
-                            {{ editingId ? 'Update Problem' : 'Log Problem' }}
-                        </button>
-
-                        <template v-if="editingId">
-                            <button type="button" @click="markAsReset" class="btn-reset" style="margin-top: 0.5rem; height: auto;">
-                                Mark as Reset
-                            </button>
-                            <button type="button" @click="resetForm" class="btn-reset" style="margin-top: 0.5rem; height: auto;">
-                                Cancel
-                            </button>
-                        </template>
-                    </div>
-                
-                </form>
-            </div>
-        </section>
-
-         <section id="user-profile" class="user-grid">
-            <h2>Manage profile</h2>
-        
-            <div class="user-container">
-
-             <!-- 1. DISPLAY VIEW (isEditingProfile = false) -->
-            <div v-if="!isEditingProfile" class="profile-card">
-                <div class="profile-details">
-                    <div class="profile-item">
-                        <span class="label">Username</span>
-                        <strong>{{ user.name || 'Anonymous Climber' }}</strong>
-                    </div>
-
-                    <div class="profile-item">
-                        <span class="label">Favorite Style</span>
-                        <strong>{{ user.favoriteStyle || 'Not set' }}</strong>
-                    </div>
-
-                    <div class="profile-item">
-                        <span class="label">Storage Mode</span>
-                        <span class="value" :style="{ color: user.saveData ? '#10b981' : '#f59e0b' }">
-                            {{ user.saveData ? '✓ Local Storage' : '⚠ Session Only' }}
-                        </span>
-                    </div>
-                </div>
-
-                 <!-- 1. EDIT VIEW (isEditingProfile = true) -->
-                <div class="form-actions" style="margin-top: 1.25rem;">
-                    <button type="button" @click="isEditingProfile = true" class="btn-submit" style="width: 100%;">
-                        Edit Profile
-                    </button>
-                </div>
-            </div>
-
-                <form v-else @submit.prevent="updateProfile" class="climb-form">
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Username</label>
-                            <input type="text" v-model="user.name" placeholder="..." class="form-input">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Favorite Style</label>
-                            <select v-model="user.favoriteStyle" class="form-select">
-                                <option value="">None selected</option>
-                                <option value="Dyno">Dyno</option>
-                                <option value="Overhang">Overhang</option>
-                                <option value="Roof">Roof</option>
-                                <option value="Slab">Slab</option>
-                                <option value="Vertical">Vertical</option>
+                        <div class="filter-item">
+                            <label class="filter-label">Style</label>
+                            <select v-model="selectedStyle" class="filter-select">
+                                <option value="">All</option>
+                                <option value="DYNO">Dyno</option>
+                                <option value="OVERHANG">Overhang</option>
+                                <option value="ROOF">Roof</option>
+                                <option value="SLAB">Slab</option>
+                                <option value="VERTICAL">Vertical</option>
                             </select>
                         </div>
-                    </div>
-
-                    <div class="form-group full-width">
-                        <label>Data Storage Settings</label>
-                        <div class="toggle-control" style="margin-top: 0.4rem;">
-                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                <input type="checkbox" v-model="user.saveData" @change="handleStorage">
-                                <span style="font-size: 0.85rem;">Save climbing data locally (localStorage)</span>
-                            </label>
+                        <div class="filter-item">
+                            <label class="filter-label">&nbsp;</label>
+                            <button v-if="hasActiveFilters" @click="resetFilters" class="btn-reset">
+                                Clear filters
+                            </button>
                         </div>
 
-                        <p v-if="user.saveData" style="font-size: 0.75rem; color: #10b981; margin-top: 0.4rem;">
-                            ✓ Data is saved in your browser's local storage.
-                        </p>
-                        <p v-else style="font-size: 0.75rem; color: #f59e0b; margin-top: 0.4rem;">
-                            ⚠ Data is only kept in memory for this session.
-                        </p> 
-                    </div>
 
-                    <div class="form-actions">
-                        <button type="submit" class="btn-submit" style="flex: 1;">
-                            Save Changes
-                        </button>
-                        <button type="button" @click="isEditingProfile = false" class="btn-reset">
-                            Cancel
-                        </button>
                     </div>
-            </form>
+                </div>
+            </section>
 
+            <div class="dashboard-grid">
+                <!-- Problem Display section -->
+                <section id="problem-list" class="problem-grid">
+
+                    <h2>Logged problems</h2>
+                    <div class="problem-container">
+
+                        <!-- Empty state om inga problem loggats-->
+                        <div v-if="problems.length === 0" class="empty-state">
+                            <p>You have no climbs logged yet.</p>
+                        </div>
+
+                        <!-- Om filtren ger 0 resultat-->
+                        <div v-else-if="filteredProblems.length === 0" class="empty-state">
+                            <p>No climbs found for your filters.</p>
+                            <button @click="resetFilters" class="btn-reset" style="margin-top: 0.75rem;">
+                                Clear filters
+                            </button>
+                        </div>
+
+                        <!-- Problem finns och matchar filtren -->
+                        <div v-else class="problem-cards-list">
+                            <div v-for="problem in filteredProblems" :key="problem.id" class="problem-card"
+                                @click="editProblem(problem)">
+
+                                <div class="card-header">
+                                    <div class="card-tags">
+                                        <span class="badge badge-grade">{{ problem.grade }}</span>
+                                        <!-- Dynamisk klass baserad på status -->
+                                        <span class="badge" :class="getDisplayStatus(problem).toLowerCase()">
+                                            {{ getDisplayStatus(problem) }}
+                                        </span>
+                                        <span class="badge badge-style">{{ problem.style }}</span>
+                                    </div>
+                                    <button @click.stop="deleteProblem(problem.id)" class="btn-delete"
+                                        title="Delete problem">&times;</button>
+                                </div>
+
+                                <div class="card-body">
+                                    <h3 class="gym-title">{{ problem.gym }} - {{ problem.date }}</h3>
+                                    <p class="meta-info">
+                                        <span>{{ problem.tries }} {{ problem.tries === 1 ? 'try' : 'tries' }}</span>
+                                        <template v-if="problem.notes">
+                                            <span class="meta-bullet">&bull;</span>
+                                            <span class="problem-notes">"{{ problem.notes }}"</span>
+                                        </template>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Problem Form section-->
+                <section id="log-form" ref="formSection" class="log-grid">
+
+                    <h2>{{ editingId ? 'Edit problem' : 'Add new problem' }}</h2>
+                    <div class="form-container">
+                        <form @submit.prevent="saveProblem" class="climb-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Gym</label>
+                                    <input type="text" v-model="newProblem.gym" placeholder="e.g. Backa Boulder"
+                                        required class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label>Date</label>
+                                    <input type="date" v-model="newProblem.date" required class="form-input">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Grade</label>
+                                    <select v-model="newProblem.grade" required class="form-select">
+                                        <option value="" disabled>Select grade</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
+                                        <option value="6A">6A</option>
+                                        <option value="6B">6B</option>
+                                        <option value="6C">6C</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Attempts</label>
+                                    <input type="number" v-model.number="newProblem.tries" min="1" class="form-input">
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label>Style</label>
+                                <div class="chip-group">
+                                    <button type="button"
+                                        v-for="style in ['Dyno', 'Overhang', 'Roof', 'Slab', 'Vertical']" :key="style"
+                                        class="chip-btn" :class="{ active: newProblem.style === style }"
+                                        @click="newProblem.style = style">
+                                        {{ style }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label>Status</label>
+                                <div class="chip-group">
+                                    <button type="button" v-for="status in ['Send', 'Project']" :key="status"
+                                        class="chip-btn" :class="{ active: newProblem.status === status }"
+                                        @click="newProblem.status = status">
+                                        {{ status }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Notes (optional)</label>
+                                <input type="text" v-model="newProblem.notes" placeholder="e.g. Heel hook was key!"
+                                    class="form-input">
+                            </div>
+
+                            <div class="form-actions" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+
+                                <button type="submit" class="btn-submit" style="flex: 1;">
+                                    {{ editingId ? 'Update Problem' : 'Log Problem' }}
+                                </button>
+
+                                <template v-if="editingId">
+                                    <button type="button" @click="markAsReset" class="btn-reset">
+                                        Mark as Reset
+                                    </button>
+                                    <button type="button" @click="resetForm" class="btn-reset">
+                                        Cancel
+                                    </button>
+                                </template>
+                            </div>
+
+                        </form>
+                    </div>
+                </section>
             </div>
-        </section>
 
-    </main>
 
-    <footer>
-        <p>&copy; 2026 Bouldering Problem Tracker</p>
-    </footer>
+            <section id="user-profile" class="user-grid">
 
-</div>
+                <h2>Manage profile</h2>
+                <div class="user-container">
+        
+                    <!-- 1. DISPLAY VIEW (isEditingProfile = false) -->
+                    <div v-if="!isEditingProfile" class="profile-card">
+                        <div class="profile-details">
+                            <div class="profile-item">
+                                <span class="label">Username</span>
+                                <strong>{{ user.name || 'Anonymous Climber' }}</strong>
+                            </div>
 
-<script>
-  const { createApp } = Vue
+                            <div class="profile-item">
+                                <span class="label">Favorite Style</span>
+                                <strong>{{ user.favoriteStyle || 'Not set' }}</strong>
+                            </div>
 
-  createApp({
-    data() {
-      return {
-        selectedStatus: '',
-        selectedGrade: '',
-        selectedStyle: '',
+                            <div class="profile-item">
+                                <span class="label">Storage Mode</span>
+                                <span class="value" :style="{ color: user.saveData ? '#10b981' : '#f59e0b' }">
+                                    {{ user.saveData ? '✓ Local Storage' : '⚠ Session Only' }}
+                                </span>
+                            </div>
+                        </div>
 
-        editingId: null,
-        isEditingProfile: false,
-       
-        user: {
-            name: '',
-            favoriteStyle: '',
-            saveData: true
-        },
+                        <!-- 1. EDIT VIEW (isEditingProfile = true) -->
+                        <div class="form-actions" style="margin-top: 1.25rem;">
+                            <button type="button" @click="isEditingProfile = true" class="btn-submit"
+                                style="width: 100%;">
+                                Edit Profile
+                            </button>
+                        </div>
+                    </div>
 
-        newProblem: {
-                style: '',
-                grade: '',
-                tries: 1,
-                status: 'Flash',
-                gym: '',
-                date: new Date().toISOString().split('T')[0],
-                notes: ''
-        },
+                    <form v-else @submit.prevent="updateProfile" class="climb-form">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Username</label>
+                                <input type="text" v-model="user.name" placeholder="..." class="form-input">
+                            </div>
 
-        problems: [
-            {
-                id: 1,
-                style: 'slab',
-                grade: '6B',
-                tries: 1,
-                status: 'Send',
-                gym: 'Backa Boulder',
-                date: '2026-09-01',
-                notes: 'Solved it on the first atempt!'
+                            <div class="form-group">
+                                <label>Favorite Style</label>
+                                <select v-model="user.favoriteStyle" class="form-select">
+                                    <option value="">None selected</option>
+                                    <option value="Dyno">Dyno</option>
+                                    <option value="Overhang">Overhang</option>
+                                    <option value="Roof">Roof</option>
+                                    <option value="Slab">Slab</option>
+                                    <option value="Vertical">Vertical</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Data Storage Settings</label>
+                            <div class="toggle-control" style="margin-top: 0.4rem;">
+                                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                    <input type="checkbox" v-model="user.saveData" @change="handleStorage">
+                                    <span style="font-size: 0.85rem;">Save climbing data locally (localStorage)</span>
+                                </label>
+                            </div>
+
+                            <p v-if="user.saveData" style="font-size: 0.75rem; color: #10b981; margin-top: 0.4rem;">
+                                ✓ Data is saved in your browser's local storage.
+                            </p>
+                            <p v-else style="font-size: 0.75rem; color: #f59e0b; margin-top: 0.4rem;">
+                                ⚠ Data is only kept in memory for this session.
+                            </p>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-submit" style="flex: 1;">
+                                Save Changes
+                            </button>
+                            <button type="button" @click="isEditingProfile = false" class="btn-reset">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </section>
+
+        </main>
+
+        <footer>
+            <p>&copy; 2026 Bouldering Problem Tracker</p>
+        </footer>
+
+    </div>
+
+    <script>
+        const { createApp } = Vue
+
+        createApp({
+            data() {
+                return {
+                    selectedStatus: '',
+                    selectedGrade: '',
+                    selectedStyle: '',
+
+                    editingId: null,
+                    isEditingProfile: false,
+
+                    user: {
+                        name: '',
+                        favoriteStyle: '',
+                        saveData: true
+                    },
+
+                    newProblem: {
+                        style: '',
+                        grade: '',
+                        tries: 1,
+                        status: 'Flash',
+                        gym: '',
+                        date: new Date().toISOString().split('T')[0],
+                        notes: ''
+                    },
+
+                    problems: [
+                        {
+                            id: 1,
+                            style: 'slab',
+                            grade: '6B',
+                            tries: 1,
+                            status: 'Send',
+                            gym: 'Backa Boulder',
+                            date: '2026-09-01',
+                            notes: 'Solved it on the first atempt!'
+                        },
+                        {
+                            id: 2,
+                            style: 'overhang',
+                            grade: '6A',
+                            tries: 3,
+                            status: 'Project',
+                            gym: 'Backa Boulder',
+                            date: '2026-09-01',
+                            notes: 'Still working on this one...'
+                        },
+                        
+                    ]
+                }
             },
-             {
-                id: 2,
-                style: 'overhang',
-                grade: '6A',
-                tries: 3,
-                status: 'Project',
-                gym: 'Backa Boulder',
-                date: '2026-09-01',
-                notes: 'Still working on this one...'
+            created() {
+                const savedUser = localStorage.getItem('bouldering_user');
+
+                if (savedUser) {
+                    this.user = JSON.parse(savedUser);
+                }
+
+                if (this.user.saveData) {
+                    const savedProblems = localStorage.getItem('bouldering_problems');
+                    if (savedProblems) {
+                        this.problems = JSON.parse(savedProblems);
+                    }
+                }
             },
-       ]
-      }
-    },
-    created() {
-            const savedUser = localStorage.getItem('bouldering_user');
+            computed: {
+                totalSends() {
+                    return this.problems.filter(p => p.status === 'Send').length;
+                },
+                activeProjects() {
+                    return this.problems.filter(p => p.status === 'Project').length;
+                },
+                totalFlashes() {
+                    return this.problems.filter(p => p.status === 'Send' && Number(p.tries) === 1).length;
+                },
+                filteredProblems() {
+                    const filtered = this.problems.filter(problem => {
+                        const statusVal = this.selectedStatus.toLowerCase();
+                        const probStatus = problem.status.toLowerCase();
+                        const isFlash = probStatus === 'flash' || (probStatus === 'send' && Number(problem.tries) === 1);
 
-            if (savedUser) {
-                this.user = JSON.parse(savedUser);
-            }
+                        let matchesStatus = true;
+                        if (statusVal === 'send') {
+                            // Visa både Sends och Flashes under Sends
+                            matchesStatus = probStatus === 'send' || probStatus === 'flash';
+                        } else if (statusVal === 'flash') {
+                            // Visa bara det som faktiskt räknas som Flash
+                            matchesStatus = isFlash;
+                        } else if (statusVal) {
+                            matchesStatus = probStatus === statusVal;
+                        }
 
-            if (this.user.saveData) {
-                const savedProblems = localStorage.getItem('bouldering_problems');
-                if (savedProblems) {
-                    this.problems = JSON.parse(savedProblems);
+                        const matchesGrade = !this.selectedGrade || problem.grade.toLowerCase() === this.selectedGrade.toLowerCase();
+                        const matchesStyle = !this.selectedStyle || problem.style.toLowerCase() === this.selectedStyle.toLowerCase();
+
+                        return matchesStatus && matchesGrade && matchesStyle;
+                    });
+
+                    // Sortera problem utifrån nyast datum
+                    return filtered.sort((a, b) => {
+                        const dateA = new Date(a.date).getTime();
+                        const dateB = new Date(b.date).getTime();
+
+                        if (dateB === dateA) {
+                            return b.id - a.id;
+                        }
+
+                        return dateB - dateA;
+                    });
+                },
+                hasActiveFilters() {
+                    return this.selectedStatus || this.selectedGrade || this.selectedStyle;
+                }
+            },
+            methods: {
+                getDisplayStatus(problem) {
+                    const isFlash = problem.status.toLowerCase() === 'send' && Number(problem.tries) === 1;
+                    return isFlash ? 'FLASH' : problem.status;
+                },
+                resetFilters() {
+                    this.selectedStatus = '';
+                    this.selectedGrade = '';
+                    this.selectedStyle = '';
+                },
+                editProblem(problem) {
+                    this.editingId = problem.id;
+                    // Skapar en ny kopia till formuläret med alla fält genom spread-operatorn (...)
+                    this.newProblem = { ...problem };
+
+                    // Vänta tills UI:n uppdaterats($nextTick), skrolla sedan till formuläret
+                    this.$nextTick(() => {
+                        this.$refs.formSection.scrollIntoView({ block: 'start' });
+                    });
+                },
+                saveProblem() {
+                    if (this.editingId) {
+                        this.updateCurrentProblem(this.editingId);
+                    } else {
+                        this.logNewProblem();
+                    }
+
+                    if (this.user.saveData) {
+                        localStorage.setItem('bouldering_problems', JSON.stringify(this.problems));
+                    }
+                    this.resetForm();
+                },
+                logNewProblem() {
+                    this.problems.push({
+                        id: Date.now(),
+                        style: this.newProblem.style,
+                        grade: this.newProblem.grade,
+                        tries: this.newProblem.tries,
+                        status: this.newProblem.status,
+                        gym: this.newProblem.gym,
+                        date: this.newProblem.date,
+                        notes: this.newProblem.notes
+                    })
+
+                    this.newProblem = {
+                        style: '',
+                        grade: '',
+                        tries: 1,
+                        status: 'Send',
+                        gym: '',
+                        date: '',
+                        notes: ''
+                    };
+                },
+                updateCurrentProblem(id) {
+                    const index = this.problems.findIndex(p => p.id === id);
+                    if (index !== -1) {
+                        this.problems[index] = { ...this.newProblem, id };
+                    }
+                },
+                resetForm() {
+                    this.editingId = null;
+                    this.newProblem = {
+                        style: '',
+                        grade: '',
+                        tries: 1,
+                        status: 'Send',
+                        gym: '',
+                        date: new Date().toISOString().split('T')[0],
+                        notes: ''
+                    };
+                },
+                markAsReset() {
+                    if (!this.editingId) return;
+
+                    // sätt status Reset på aktuella formulärobjektet
+                    this.newProblem.status = 'Reset';
+
+                    // Uppdatera problemet i listan + rensa formuläret
+                    this.updateCurrentProblem(this.editingId);
+                    this.resetForm();
+                },
+                deleteProblem(id) {
+                    if (this.editingId === id) {
+                        this.resetForm();
+                    }
+                    this.problems = this.problems.filter(p => p.id !== id);
+
+                    if (this.user.saveData) {
+                        localStorage.setItem('bouldering_problems', JSON.stringify(this.problems));
+                    }
+                },
+                updateProfile() {
+                    this.saveProfile();
+                    this.isEditingProfile = false;
+                },
+                saveProfile() {
+                    if (this.user.saveData) {
+                        localStorage.setItem('bouldering_user', JSON.stringify(this.user));
+                        localStorage.setItem('bouldering_problems', JSON.stringify(this.problems));
+                    }
+                },
+                handleStorage() {
+                    if (!this.user.saveData) {
+                        // Om användaren slår av lokal sparning, rensa data från localStorage
+                        localStorage.removeItem('bouldering_user');
+                        localStorage.removeItem('bouldering_problems');
+                    } else {
+                        this.saveProfile();
+                    }
                 }
             }
-        },
-    computed: {
-        totalSends() {
-            return this.problems.filter(p => p.status === 'Send').length;
-        },
-        activeProjects() {
-            return this.problems.filter(p => p.status === 'Project').length;
-        },
-        totalFlashes() {
-            return this.problems.filter(p => p.status === 'Send' && Number(p.tries) === 1).length;
-        },
-        filteredProblems() {
-            const filtered = this.problems.filter(problem => {
-                const statusVal = this.selectedStatus.toLowerCase();
-                const probStatus = problem.status.toLowerCase();
-                const isFlash = probStatus === 'flash' || (probStatus === 'send' && Number(problem.tries) === 1);
-
-                let matchesStatus = true;
-                if (statusVal === 'send') {
-                    // Visa både Sends och Flashes under Sends
-                    matchesStatus = probStatus === 'send' || probStatus === 'flash';
-                } else if (statusVal === 'flash') {
-                    // Visa bara det som faktiskt räknas som Flash
-                    matchesStatus = isFlash;
-                } else if (statusVal) {
-                    matchesStatus = probStatus === statusVal;
-                }
-
-                const matchesGrade = !this.selectedGrade || problem.grade.toLowerCase() === this.selectedGrade.toLowerCase();
-                const matchesStyle = !this.selectedStyle || problem.style.toLowerCase() === this.selectedStyle.toLowerCase();
-
-                return matchesStatus && matchesGrade && matchesStyle;
-            });
-
-            // Sortera problem utifrån nyast datum
-            return filtered.sort((a, b) => {
-                const dateA = new Date(a.date).getTime();
-                const dateB = new Date(b.date).getTime();
-
-                if (dateB === dateA) {
-                    return b.id - a.id;
-                }
-
-                return dateB - dateA;
-            });
-        },
-        hasActiveFilters() {
-            return this.selectedStatus || this.selectedGrade || this.selectedStyle;
-        }   
-    },
-    methods: {
-        getDisplayStatus(problem) {
-            const isFlash = problem.status.toLowerCase() === 'send' && Number(problem.tries) === 1;
-            return isFlash ? 'FLASH' : problem.status;
-        },
-        resetFilters() {
-            this.selectedStatus = '';
-            this.selectedGrade = '';
-            this.selectedStyle = '';
-        },
-        editProblem(problem) {
-            this.editingId = problem.id;
-            // Skapar en ny kopia till formuläret med alla fält genom spread-operatorn (...)
-            this.newProblem = {...problem };
-
-            // Vänta tills UI:n uppdaterats($nextTick), skrolla sedan till formuläret
-            this.$nextTick(() => {
-                    this.$refs.formSection.scrollIntoView({block: 'start' });
-            });
-        },
-        saveProblem() {
-            if (this.editingId) {
-                this.updateCurrentProblem(this.editingId);
-            } else {
-                this.logNewProblem();
-            }
-
-            if (this.user.saveData) {
-                localStorage.setItem('bouldering_problems', JSON.stringify(this.problems));
-            }
-            this.resetForm();
-        },
-        logNewProblem() {
-            this.problems.push({
-                id: Date.now(),
-                style: this.newProblem.style,
-                grade: this.newProblem.grade,
-                tries: this.newProblem.tries,
-                status: this.newProblem.status,
-                gym: this.newProblem.gym,
-                date: this.newProblem.date,
-                notes: this.newProblem.notes
-            })
-
-            this.newProblem = {
-                style: '',
-                grade: '',
-                tries: 1,
-                status: 'Send',
-                gym: '',
-                date: '',
-                notes: ''
-            };
-        },
-        updateCurrentProblem(id) {
-            const index = this.problems.findIndex(p => p.id === id);
-            if (index !== -1) {
-                this.problems[index] = {...this.newProblem, id };
-            }
-        },
-        resetForm() {
-            this.editingId = null;
-            this.newProblem = {
-                style: '',
-                grade: '',
-                tries: 1,
-                status: 'Send',
-                gym: '',
-                date: new Date().toISOString().split('T')[0],
-                notes: ''
-            };
-        },
-        markAsReset() {
-            if (!this.editingId) return;
-
-            // sätt status Reset på aktuella formulärobjektet
-            this.newProblem.status = 'Reset';
-
-            // Uppdatera problemet i listan + rensa formuläret
-            this.updateCurrentProblem(this.editingId);
-            this.resetForm();
-        },
-        deleteProblem(id) {
-            if (this.editingId === id){
-                this.resetForm();
-            }
-            this.problems = this.problems.filter(p => p.id !== id);
-
-            if (this.user.saveData) {
-                localStorage.setItem('bouldering_problems', JSON.stringify(this.problems));
-            }
-        },
-        updateProfile() {
-            this.saveProfile();
-            this.isEditingProfile = false;
-        },
-        saveProfile() {
-            if (this.user.saveData) {
-                localStorage.setItem('bouldering_user', JSON.stringify(this.user));
-                localStorage.setItem('bouldering_problems', JSON.stringify(this.problems));
-            }
-        },
-        handleStorage() {
-            if (!this.user.saveData) {
-                // Om användaren slår av lokal sparning, rensa data från localStorage
-                localStorage.removeItem('bouldering_user');
-                localStorage.removeItem('bouldering_problems');
-            } else {
-                this.saveProfile();
-            }
-        } 
-    }
-  }).mount('#app')
-</script>
+        }).mount('#app')
+    </script>
 </body>
+
 </html>
