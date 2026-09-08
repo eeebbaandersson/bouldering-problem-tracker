@@ -246,9 +246,83 @@
             <h2>Manage profile</h2>
         
             <div class="user-container">
-                <h3>Username</h3>
-                <h3>Favorite boulder style</h3>
-                <h3>Option/toggle to save climbing data</h3>
+
+             <!-- 1. DISPLAY VIEW (isEditingProfile = false) -->
+            <div v-if="!isEditingProfile" class="profile-card">
+                <div class="profile-details">
+                    <div class="profile-item">
+                        <span class="label">Username</span>
+                        <strong>{{ user.name || 'Anonymous Climber' }}</strong>
+                    </div>
+
+                    <div class="profile-item">
+                        <span class="label">Favorite Style</span>
+                        <strong>{{ user.favoriteStyle || 'Not set' }}</strong>
+                    </div>
+
+                    <div class="profile-item">
+                        <span class="label">Storage Mode</span>
+                        <span class="value" :style="{ color: user.saveData ? '#10b981' : '#f59e0b' }">
+                            {{ user.saveData ? '✓ Local Storage' : '⚠ Session Only' }}
+                        </span>
+                    </div>
+                </div>
+
+                 <!-- 1. EDIT VIEW (isEditingProfile = true) -->
+                <div class="form-actions" style="margin-top: 1.25rem;">
+                    <button type="button" @click="isEditingProfile = true" class="btn-submit" style="width: 100%;">
+                        Edit Profile
+                    </button>
+                </div>
+            </div>
+
+                <form v-else @submit.prevent="updateProfile" class="climb-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" v-model="user.name" placeholder="..." class="form-input">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Favorite Style</label>
+                            <select v-model="user.favoriteStyle" class="form-select">
+                                <option value="">None selected</option>
+                                <option value="Dyno">Dyno</option>
+                                <option value="Overhang">Overhang</option>
+                                <option value="Roof">Roof</option>
+                                <option value="Slab">Slab</option>
+                                <option value="Vertical">Vertical</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Data Storage Settings</label>
+                        <div class="toggle-control" style="margin-top: 0.4rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" v-model="user.saveData" @change="handleStorage">
+                                <span style="font-size: 0.85rem;">Save climbing data locally (localStorage)</span>
+                            </label>
+                        </div>
+
+                        <p v-if="user.saveData" style="font-size: 0.75rem; color: #10b981; margin-top: 0.4rem;">
+                            ✓ Data is saved in your browser's local storage.
+                        </p>
+                        <p v-else style="font-size: 0.75rem; color: #f59e0b; margin-top: 0.4rem;">
+                            ⚠ Data is only kept in memory for this session.
+                        </p> 
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-submit" style="flex: 1;">
+                            Save Changes
+                        </button>
+                        <button type="button" @click="isEditingProfile = false" class="btn-reset">
+                            Cancel
+                        </button>
+                    </div>
+            </form>
+
             </div>
         </section>
 
@@ -271,7 +345,13 @@
         selectedStyle: '',
 
         editingId: null,
-        userName: '',
+        isEditingProfile: false,
+       
+        user: {
+            name: '',
+            favoriteStyle: '',
+            saveData: true
+        },
 
         newProblem: {
                 style: '',
@@ -279,7 +359,7 @@
                 tries: 1,
                 status: 'Flash',
                 gym: '',
-                date: '',
+                date: new Date().toISOString().split('T')[0],
                 notes: ''
         },
 
@@ -307,6 +387,20 @@
        ]
       }
     },
+    created() {
+            const savedUser = localStorage.getItem('bouldering_user');
+
+            if (savedUser) {
+                this.user = JSON.parse(savedUser);
+            }
+
+            if (this.user.saveData) {
+                const savedProblems = localStorage.getItem('bouldering_problems');
+                if (savedProblems) {
+                    this.problems = JSON.parse(savedProblems);
+                }
+            }
+        },
     computed: {
         totalSends() {
             return this.problems.filter(p => p.status === 'Send').length;
@@ -354,7 +448,7 @@
         },
         hasActiveFilters() {
             return this.selectedStatus || this.selectedGrade || this.selectedStyle;
-        }
+        }   
     },
     methods: {
         getDisplayStatus(problem) {
@@ -381,6 +475,10 @@
                 this.updateCurrentProblem(this.editingId);
             } else {
                 this.logNewProblem();
+            }
+
+            if (this.user.saveData) {
+                localStorage.setItem('bouldering_problems', JSON.stringify(this.problems));
             }
             this.resetForm();
         },
@@ -420,7 +518,7 @@
                 tries: 1,
                 status: 'Send',
                 gym: '',
-                date: '',
+                date: new Date().toISOString().split('T')[0],
                 notes: ''
             };
         },
@@ -439,6 +537,29 @@
                 this.resetForm();
             }
             this.problems = this.problems.filter(p => p.id !== id);
+
+            if (this.user.saveData) {
+                localStorage.setItem('bouldering_problems', JSON.stringify(this.problems));
+            }
+        },
+        updateProfile() {
+            this.saveProfile();
+            this.isEditingProfile = false;
+        },
+        saveProfile() {
+            if (this.user.saveData) {
+                localStorage.setItem('bouldering_user', JSON.stringify(this.user));
+                localStorage.setItem('bouldering_problems', JSON.stringify(this.problems));
+            }
+        },
+        handleStorage() {
+            if (!this.user.saveData) {
+                // Om användaren slår av lokal sparning, rensa data från localStorage
+                localStorage.removeItem('bouldering_user');
+                localStorage.removeItem('bouldering_problems');
+            } else {
+                this.saveProfile();
+            }
         } 
     }
   }).mount('#app')
