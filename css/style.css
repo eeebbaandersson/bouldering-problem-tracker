@@ -61,17 +61,21 @@ h2 {
     align-items: flex-start;
 }
 
-.hero-container h1 {
-    font-size: 2.5rem;
+.brand-badge {
+    display: inline-block;
+    color: var(--accent-color);
     margin-bottom: 0.5rem;
-    text-transform: uppercase;
-    line-height: 2.6rem;  
 }
 
-.brand-accent {
-    color: var(--accent-color);
-    margin-left: -0.12em;
+.hero-container h1 {
+   font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.15;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
 }
+
 
 .hero-container p {
     opacity: 0.8;
@@ -597,7 +601,8 @@ h2 {
 
 footer {
     text-align: center;
-    padding: 3rem 0;
+    font-family: 'JetBrains Mono', monospace;
+    padding: 2rem 0;
     font-size: 0.85rem;
     opacity: 0.6;
 }
@@ -624,9 +629,21 @@ footer {
         margin: 0 auto;
     }
 
+    .brand-badge {
+       font-size: 3.2rem;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
     .hero-container h1 {
         font-size: 3.2rem;
-        line-height: 3.3rem;
+        line-height: 1.1;
+    }
+
+    .tagline {
+        font-size: 1.15rem;
+        line-height: 1.6;
+        margin-bottom: 2.5rem;
     }
 
     .stats-card {

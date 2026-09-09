@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>🧗🏻‍♀️ Bouldering Problem Tracker</title>
+    <title>CRUX — Bouldering Problem Tracker</title>
     <link rel="stylesheet" type="text/css" href="css/style.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,14 +23,15 @@
             <!-- Hero section-->
             <section id="hero" class="hero-container">
                 <h1>
-                    <span class="brand-accent">[Bouldering]</span> <br>
-                    Problem Tracker
+                    <span class="brand-badge">[CRUX]</span><br>
+                    LOG YOUR SENDS. <br>
+                    TRACK YOUR PROJECTS.
                 </h1>
-
                 <p class="tagline">
-                    Data-driven climbing. <br>
-                    Because <em>"I almost had it"</em> doesn't count on the log.</p>
-
+                    Data-driven climbing.<br>
+                    Because <em>"I almost had it"</em> doesn't count on the log.
+                </p>
+             
                 <div class="stats-container">
                     <div class="stats-card">
                         <span class="stat-number">{{ totalFlashes }}</span>
@@ -232,7 +233,7 @@
                                     <button type="button" @click="resetForm" class="btn-reset">
                                         Cancel
                                     </button>
-                                </template>
+                                </template> 
                             </div>
 
                         </form>
@@ -243,7 +244,8 @@
 
             <section id="user-profile" class="user-grid">
 
-                <h2>Manage profile</h2>
+               
+                <h2>{{ !isEditingProfile ? 'Your profile' : 'Edit Profile'}}</h2>
                 <div class="user-container">
         
                     <!-- 1. DISPLAY VIEW (isEditingProfile = false) -->
@@ -257,6 +259,11 @@
                             <div class="profile-item">
                                 <span class="label">Favorite Style</span>
                                 <strong>{{ user.favoriteStyle || 'Not set' }}</strong>
+                            </div>
+                            <div class="profile-item">
+                                <span class="label">Unfinished Business (Resets)</span>
+                                <strong>{{ totalResets }}x</strong>
+
                             </div>
 
                             <div class="profile-item">
@@ -329,7 +336,7 @@
         </main>
 
         <footer>
-            <p>&copy; 2026 Bouldering Problem Tracker</p>
+            <p>&copy; 2026 CRUX. All rights reserved.</p>
         </footer>
 
     </div>
@@ -357,7 +364,7 @@
                         style: '',
                         grade: '',
                         tries: 1,
-                        status: 'Flash',
+                        status: 'Send',
                         gym: '',
                         date: new Date().toISOString().split('T')[0],
                         notes: ''
@@ -383,8 +390,7 @@
                             gym: 'Backa Boulder',
                             date: '2026-09-01',
                             notes: 'Still working on this one...'
-                        },
-                        
+                        }   
                     ]
                 }
             },
@@ -411,6 +417,9 @@
                 },
                 totalFlashes() {
                     return this.problems.filter(p => p.status === 'Send' && Number(p.tries) === 1).length;
+                },
+                totalResets() {
+                    return this.problems.filter(p => p.status === 'Reset').length;
                 },
                 filteredProblems() {
                     const filtered = this.problems.filter(problem => {
@@ -501,7 +510,7 @@
                         tries: 1,
                         status: 'Send',
                         gym: '',
-                        date: '',
+                        date: new Date().toISOString().split('T')[0],
                         notes: ''
                     };
                 },
@@ -526,11 +535,14 @@
                 markAsReset() {
                     if (!this.editingId) return;
 
-                    // sätt status Reset på aktuella formulärobjektet
                     this.newProblem.status = 'Reset';
 
-                    // Uppdatera problemet i listan + rensa formuläret
                     this.updateCurrentProblem(this.editingId);
+
+                    if (this.user.saveData) {
+                        localStorage.setItem('bouldering_problems', JSON.stringify(this.problems));
+                    }
+
                     this.resetForm();
                 },
                 deleteProblem(id) {
