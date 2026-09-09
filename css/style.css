@@ -620,6 +620,17 @@ footer {
     .stats-card {
         padding: 1.25rem 1.5rem;
     }  
+
+    .profile-details {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .profile-card {
+        display: flex;
+        flex-direction: column;
+    }
 }
 
 /* Desktop */
