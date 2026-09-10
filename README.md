@@ -1,7 +1,7 @@
-# CRUX — Bouldering Problem Tracker
+# CRUX — Bouldering Tracker
 
 <p>
-<img src="images/app-preview.png" alt="CRUX - Bouldering Problem Tracker Preview" width="1000">
+<img src="images/app-preview.png" alt="CRUX - Bouldering Tracker Preview" width="1000">
 </p>
 
 
