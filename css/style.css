@@ -360,11 +360,16 @@ h2 {
 
 .meta-info {
     display: flex;
-    align-items: center;
+    align-items: balance;
     gap: 0.5rem;
     font-size: 0.85rem;
     color: rgba(255, 255, 255, 0.5);
     margin-top: 0.2rem;
+    flex-wrap: wrap;
+}
+
+.meta-info > span:first-child {
+    white-space: nowrap;
 }
 
 .meta-bullet {
@@ -375,6 +380,7 @@ h2 {
 .problem-notes {
     font-style: italic;
     color: rgba(255, 255, 255, 0.8);
+    word-break: break-word;
 }
 
 .btn-delete {
@@ -617,11 +623,24 @@ footer {
     opacity: 0.6;
 }
 
+/* Hides meta-bullet at line-break on smaller screens */
+@media screen and (max-width: 480px) {
+    .meta-bullet {
+        display: none;
+    }
+}
+
 /* Tablet */
 @media screen and (min-width: 768px) {
     .hero-container, .filter-grid, .dashboard-grid, .user-grid {
         max-width: 720px;
     }
+
+    .form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem; 
+}
 
     .profile-details {
         grid-template-columns: repeat(3, 1fr);
@@ -688,19 +707,23 @@ footer {
 
     .dashboard-grid .problem-grid,
     .dashboard-grid .log-grid {
-        border-top: none;
+      border-top: none;
         padding-top: 0;
         margin-top: 1rem;
         max-width: 100%;
         width: 100%;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
     }
 
     .problem-container,
     .form-container {
-        height: 100%;
+       flex: 1;
         min-height: 520px;
         display: flex;
         flex-direction: column;
+        box-sizing: border-box;
     }
 
     section {
@@ -712,8 +735,10 @@ footer {
     }
 
     .problem-cards-list {
-        max-height: 480px; 
-        gap: 0.65rem;
         flex: 1;
+        height: 0;
+        gap: 0.65rem;
+        
+       
     }
 }
